@@ -1,0 +1,156 @@
+# 🚦 **PHASE 1 — BACKEND FOUNDATIONS (Start Here)**
+
+Your backend must accomplish:
+
+* Receive logs from the desktop agent
+* Store logs efficiently in PostgreSQL
+* Authenticate supervisor/admin
+* Serve data to the dashboard
+* Allow task creation & tracking
+* Handle alerts (like bandwidth misuse)
+
+If your backend is weak, the whole project collapses.
+
+Now let’s begin.
+
+---
+
+# ✅ **STEP 1 — Project Folder Setup (Mandatory)**
+
+Inside your `backend/` folder, create this structure:
+
+```
+backend/
+│── app/
+│   │── core/
+│   │── api/v1/
+│   │── models/
+│   │── schemas/
+│   │── services/
+│   │── utils/
+│   │── main.py
+│
+│── requirements.txt
+│── README.md
+```
+
+Do NOT create any more files yet.
+We first design the database.
+
+---
+
+# ✅ **STEP 2 — DATABASE SCHEMA (THE HEART OF THE SYSTEM)**
+
+This MUST be done before writing a single line of FastAPI code.
+
+Your system collects 5 major types of data:
+
+1. **Interns**
+2. **Application logs**
+3. **Website logs**
+4. **Resource usage logs**
+5. **Idle time logs**
+6. **Tasks**
+
+Here is your **final database schema**, optimized for speed + clarity + analytics.
+
+---
+
+# 📌 **TABLE 1 — interns**
+
+Stores the interns being monitored.
+
+| column     | type         | notes           |
+| ---------- | ------------ | --------------- |
+| id         | SERIAL (PK)  | unique ID       |
+| fullname   | VARCHAR(100) | intern name     |
+| email      | VARCHAR(120) | optional        |
+| token      | VARCHAR(255) | for client auth |
+| created_at | TIMESTAMP    | default now     |
+
+---
+
+# 📌 **TABLE 2 — application_logs**
+
+Tracks which desktop apps the intern used.
+
+| column | type | notes |
+| id | SERIAL | PK |
+| intern_id | INT | FK → interns.id |
+| app_name | VARCHAR(200) | name of software |
+| window_title | TEXT | optional |
+| duration_seconds | INT | time spent |
+| timestamp | TIMESTAMP | time of activity |
+
+---
+
+# 📌 **TABLE 3 — website_logs**
+
+Tracks websites visited.
+
+| column           | type         |
+| ---------------- | ------------ |
+| id               | SERIAL       |
+| intern_id        | INT FK       |
+| url              | TEXT         |
+| domain           | VARCHAR(200) |
+| duration_seconds | INT          |
+| timestamp        | TIMESTAMP    |
+
+---
+
+# 📌 **TABLE 4 — resource_logs**
+
+CPU/RAM/Network stats.
+
+| column        | type      |
+| ------------- | --------- |
+| id            | SERIAL    |
+| intern_id     | INT FK    |
+| cpu_percent   | FLOAT     |
+| ram_percent   | FLOAT     |
+| upload_kbps   | FLOAT     |
+| download_kbps | FLOAT     |
+| timestamp     | TIMESTAMP |
+
+---
+
+# 📌 **TABLE 5 — idle_logs**
+
+Detects inactivity.
+
+| column       | type      |
+| ------------ | --------- |
+| id           | SERIAL    |
+| intern_id    | INT FK    |
+| idle_seconds | INT       |
+| timestamp    | TIMESTAMP |
+
+---
+
+# 📌 **TABLE 6 — tasks**
+
+Supervisor assigns tasks to interns.
+
+| column      | type                                           |
+| ----------- | ---------------------------------------------- |
+| id          | SERIAL                                         |
+| intern_id   | INT FK                                         |
+| title       | VARCHAR(255)                                   |
+| description | TEXT                                           |
+| status      | VARCHAR(50) ("pending", "in-progress", "done") |
+| created_at  | TIMESTAMP                                      |
+| updated_at  | TIMESTAMP                                      |
+
+---
+
+# 📌 **TABLE 7 — admin**
+
+Supervisor login access.
+
+| column        | type        |
+| ------------- | ----------- |
+| id            | SERIAL      |
+| username      | VARCHAR(50) |
+| password_hash | TEXT        |
+| created_at    | TIMESTAMP   |
